@@ -1,0 +1,28 @@
+import { Exam, ExamStatus } from './types';
+
+export const initialExams: Exam[] = [
+  { id: 1, nome: 'Diritto Costituzionale', codice: 'IUS-08', anno: 1, cfu: 10, stato: ExamStatus.COMPLETED, voto: 23, settore: 'IUS/08', notes: '' },
+  { id: 2, nome: 'Filosofia del Diritto', codice: 'IUS-20', anno: 1, cfu: 9, stato: ExamStatus.TODO, voto: null, settore: 'IUS/20', notes: '' },
+  { id: 3, nome: 'Economia Politica', codice: 'SECS-P/01', anno: 1, cfu: 9, stato: ExamStatus.TODO, voto: null, settore: 'SECS-P/01', notes: '' },
+  { id: 4, nome: 'Informatica', codice: 'INF-01', anno: 1, cfu: 3, stato: ExamStatus.TODO, voto: null, settore: 'INF/01', notes: '' },
+  { id: 5, nome: 'Diritto Privato', codice: 'IUS-01', anno: 2, cfu: 10, stato: ExamStatus.TODO, voto: null, settore: 'IUS/01', notes: '' },
+  { id: 6, nome: 'Lingua Inglese', codice: 'L-LIN/12', anno: 1, cfu: 3, stato: ExamStatus.COMPLETED, voto: null, settore: 'L-LIN/12', notes: '' },
+  { id: 7, nome: 'Storia del Diritto Europeo e Comparato in Età Contemporanea', codice: 'IUS-19', anno: 2, cfu: 7, stato: ExamStatus.COMPLETED, voto: 26, settore: 'IUS/19', notes: '' },
+  { id: 8, nome: 'Diritto Romano e Fondamenti di Diritto Europeo', codice: 'IUS-18', anno: 2, cfu: 7, stato: ExamStatus.COMPLETED, voto: 25, settore: 'IUS/18', notes: '' },
+  { id: 9, nome: 'Diritto Penale', codice: 'IUS-17', anno: 3, cfu: 9, stato: ExamStatus.COMPLETED, voto: 26, settore: 'IUS/17', notes: '' },
+  { id: 10, nome: 'Diritto Amministrativo', codice: 'IUS-10', anno: 3, cfu: 9, stato: ExamStatus.COMPLETED, voto: 27, settore: 'IUS/10', notes: '' },
+  { id: 11, nome: 'Diritto Commerciale', codice: 'IUS-04', anno: 3, cfu: 9, stato: ExamStatus.TODO, voto: null, settore: 'IUS/04', notes: '' },
+  { id: 12, nome: 'Diritto Internazionale', codice: 'IUS-13', anno: 4, cfu: 9, stato: ExamStatus.COMPLETED, voto: 25, settore: 'IUS/13', notes: '' },
+  { id: 13, nome: 'Diritto Processuale Amministrativo', codice: 'IUS-10', anno: 4, cfu: 6, stato: ExamStatus.COMPLETED, voto: 30, settore: 'IUS/10', notes: '' },
+  { id: 14, nome: 'Economia Aziendale', codice: 'SECS-P/07', anno: 2, cfu: 7, stato: ExamStatus.TODO, voto: null, settore: 'SECS-P/07', notes: '' },
+  { id: 15, nome: 'Diritto Finanziario e Tributario', codice: 'IUS-12', anno: 4, cfu: 8, stato: ExamStatus.COMPLETED, voto: 28, settore: 'IUS/12', notes: '' },
+  { id: 16, nome: 'Diritto del Lavoro e Sindacale', codice: 'IUS-07', anno: 4, cfu: 9, stato: ExamStatus.TODO, voto: null, settore: 'IUS/07', notes: '' },
+  { id: 17, nome: 'Diritto Processuale Civile', codice: 'IUS-15', anno: 5, cfu: 11, stato: ExamStatus.TODO, voto: null, settore: 'IUS/15', notes: '' },
+  { id: 18, nome: 'Insegnamento a Scelta', codice: 'N/A', anno: 5, cfu: 6, stato: ExamStatus.TODO, voto: null, settore: 'N/A', notes: '' },
+  { id: 19, nome: 'Prova Finale', codice: 'N/A', anno: 5, cfu: 7, stato: ExamStatus.TODO, voto: null, settore: 'N/A', notes: '' },
+  { id: 20, nome: 'Diritto dell’Unione Europea', codice: 'IUS-14', anno: 3, cfu: 9, stato: ExamStatus.COMPLETED, voto: 20, settore: 'IUS/14', notes: '' },
+  { id: 21, nome: 'Diritto Processuale Penale', codice: 'IUS-16', anno: 5, cfu: 10, stato: ExamStatus.TODO, voto: null, settore: 'IUS/16', notes: '' },
+  { id: 22, nome: 'Tirocinio/Stage', codice: 'N/A', anno: 4, cfu: 4, stato: ExamStatus.TODO, voto: null, settore: 'N/A', notes: '' },
+  { id: 23, nome: 'Management degli Enti Religiosi', codice: 'IUS-11', anno: 3, cfu: 6, stato: ExamStatus.COMPLETED, voto: 28, settore: 'IUS/11', notes: '' },
+  { id: 24, nome: 'Laboratorio di Scrittura Giuridica', codice: 'N/A', anno: 2, cfu: 3, stato: ExamStatus.TODO, voto: null, settore: 'N/A', notes: '' },
+];
