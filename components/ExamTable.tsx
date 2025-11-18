@@ -2,108 +2,94 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Exam, ExamStatus, SortConfig, SortableExamKeys } from '../types';
 import { SortIcon } from './icons/SortIcon';
 
-interface EditableGradeProps {
-  exam: Exam;
-  onGradeChange: (examId: number, grade: number) => void;
+interface ExamTableProps {
+  exams: Exam[];
+  onExamSelect: (examId: number) => void;
+  onGradeChange: (examId: number, grade: number | null) => void;
 }
 
-const EditableGrade: React.FC<EditableGradeProps> = ({ exam, onGradeChange }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(exam.voto?.toString() ?? '');
+export const ExamTable: React.FC<ExamTableProps> = ({ exams, onExamSelect, onGradeChange }) => {
+  const [sortConfig, setSortConfig] = useState<SortConfig | undefined>(undefined);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [gradeValue, setGradeValue] = useState('');
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-        inputRef.current.focus();
-        inputRef.current.select();
+  const handleConfirmEditing = (navigateAway = false): boolean => {
+    if (editingId === null) return true;
+
+    const value = gradeValue.trim();
+    if (value === '') {
+      onGradeChange(editingId, null);
+      if (!navigateAway) {
+        setEditingId(null);
+        setError(null);
+      }
+      return true;
     }
-  }, [isEditing]);
 
-  const handleStartEditing = () => {
-    setValue(exam.voto?.toString() ?? '');
-    setError(null);
-    setIsEditing(true);
-  };
-
-  const handleConfirm = () => {
     const grade = parseInt(value, 10);
-
-    if (isNaN(grade)) {
-      setError(null);
-      setIsEditing(false);
-      return;
+    if (isNaN(grade) || String(grade) !== value) {
+       setError('Voto non valido');
+       return false;
     }
 
     if (grade >= 18 && grade <= 30) {
-      onGradeChange(exam.id, grade);
-      setError(null);
-      setIsEditing(false);
+      onGradeChange(editingId, grade);
+      if (!navigateAway) {
+        setEditingId(null);
+        setError(null);
+      }
+      return true;
     } else {
-      setError('Voto non valido (18-30)');
+      setError('Voto non valido');
+      return false;
     }
   };
-
-  const handleCancel = () => {
+  
+  const handleStartEditing = (exam: Exam) => {
+    if (editingId !== null && editingId !== exam.id) {
+        const success = handleConfirmEditing();
+        if (!success) return; 
+    }
+    setEditingId(exam.id);
+    setGradeValue(exam.voto?.toString() ?? '');
     setError(null);
-    setIsEditing(false);
-  }
+  };
+  
+  const handleCancelEditing = () => {
+    setEditingId(null);
+    setError(null);
+  };
+
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingId]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleConfirm();
+      handleConfirmEditing();
     } else if (e.key === 'Escape') {
-      handleCancel();
+      handleCancelEditing();
     }
   };
 
-  if (isEditing) {
-    return (
-      <div className="flex flex-col items-center">
-        <input
-          ref={inputRef}
-          type="number"
-          min="18"
-          max="30"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            if (error) setError(null);
-          }}
-          onBlur={handleConfirm}
-          onKeyDown={handleKeyDown}
-          placeholder="--"
-          aria-label={`Voto per ${exam.nome}`}
-          className={`w-20 px-2 py-1 text-center bg-slate-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 ${error ? 'border-red-500' : 'border-slate-300'}`}
-        />
-        {error && <div className="text-xs text-red-500 mt-1">{error}</div>}
-      </div>
-    );
+  const handleRowClick = (examId: number) => {
+    if (editingId !== null && editingId !== examId) {
+      const success = handleConfirmEditing(true);
+      if (!success) {
+        return;
+      }
+    }
+    onExamSelect(examId);
   }
-
-  return (
-    <div
-      className="font-bold text-lg cursor-pointer p-1 rounded-md hover:bg-slate-100 min-w-[5rem] h-8 flex items-center justify-center"
-      onClick={handleStartEditing}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleStartEditing(); }}
-      aria-label={`Modifica voto ${exam.voto ?? '-'} per ${exam.nome}`}
-    >
-      {exam.voto ?? '-'}
-    </div>
-  );
-};
-
-
-interface ExamTableProps {
-  exams: Exam[];
-  onGradeChange: (examId: number, grade: number) => void;
-  onExamSelect: (examId: number) => void;
-}
-
-export const ExamTable: React.FC<ExamTableProps> = ({ exams, onGradeChange, onExamSelect }) => {
-  const [sortConfig, setSortConfig] = useState<SortConfig | undefined>(undefined);
+  
+  const handleBlur = () => {
+    handleConfirmEditing();
+  };
 
   const sortedExams = useMemo(() => {
     let sortableItems = [...exams];
@@ -172,7 +158,14 @@ export const ExamTable: React.FC<ExamTableProps> = ({ exams, onGradeChange, onEx
               <tr 
                 key={exam.id} 
                 className="bg-white border-b border-slate-200 hover:bg-slate-100 cursor-pointer"
-                onClick={() => onExamSelect(exam.id)}
+                onMouseDown={(e) => {
+                  // Prevent input blur when clicking on another row while editing.
+                  // This lets the onClick handler manage the state transition, avoiding a race condition.
+                  if (editingId !== null) {
+                    e.preventDefault();
+                  }
+                }}
+                onClick={() => handleRowClick(exam.id)}
               >
                 <td className="px-4 py-3 font-medium text-slate-900">{exam.nome}</td>
                 <td className="px-4 py-3 text-center">{exam.cfu}</td>
@@ -185,7 +178,38 @@ export const ExamTable: React.FC<ExamTableProps> = ({ exams, onGradeChange, onEx
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                   <EditableGrade key={exam.id} exam={exam} onGradeChange={onGradeChange} />
+                    {editingId === exam.id ? (
+                         <div className="flex flex-col items-center">
+                         <input
+                           ref={inputRef}
+                           type="number"
+                           min="18"
+                           max="30"
+                           value={gradeValue}
+                           onChange={(e) => {
+                             setGradeValue(e.target.value);
+                             if (error) setError(null);
+                           }}
+                           onBlur={handleBlur}
+                           onKeyDown={handleKeyDown}
+                           placeholder="--"
+                           aria-label={`Voto per ${exam.nome}`}
+                           className={`w-20 px-2 py-1 text-center bg-slate-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 ${error ? 'border-red-500' : 'border-slate-300'}`}
+                         />
+                         {error && <div className="text-xs text-red-500 mt-1">{error}</div>}
+                       </div>
+                    ) : (
+                        <div
+                            className="font-bold text-lg cursor-pointer p-1 rounded-md hover:bg-slate-100 min-w-[5rem] h-8 flex items-center justify-center"
+                            onClick={() => handleStartEditing(exam)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleStartEditing(exam); }}
+                            aria-label={`Modifica voto ${exam.voto ?? '-'} per ${exam.nome}`}
+                        >
+                            {exam.voto ?? '-'}
+                        </div>
+                    )}
                 </td>
                 <td className="px-4 py-3 font-mono text-xs">{exam.settore}</td>
               </tr>
